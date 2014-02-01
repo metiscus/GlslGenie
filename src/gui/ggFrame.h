@@ -20,14 +20,29 @@
 #include <oglplus/all.hpp>
 
 #include <wx/wx.h>
-#include "ggGLFrame.h"
+#include <wx/glcanvas.h>
+#include <wx/sharedptr.h>
+#include <wx/fileconf.h>
 
 class ggFrame : public wxFrame
 {
 public:
-    ggFrame();
-    ~ggFrame();
+    ggFrame( wxFileConfig *configFile );
+    virtual ~ggFrame();
+
+    virtual void Update();
+    virtual void OnIdle(wxIdleEvent& evnt);
+    virtual void OnResize(wxSizeEvent& evnt);
+    virtual void OnQuit(wxCommandEvent& evnt);
 
 private:
-    ggGLFrame *mGLFrame;
+    wxPanel *mOglPanel;
+    wxPanel *mCommandPanel;
+    wxGLCanvas *mOglCanvas;
+    wxGLContext *mOglContext;
+    oglplus::Context mGL;
+    wxSharedPtr<wxFileConfig> mConfigFile;
+
+    void BuildMenu();
+    void ReadConfig();
 };

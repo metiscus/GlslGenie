@@ -14,23 +14,11 @@
     You should have received a copy of the GNU General Public License
     along with GlslGenie.  If not, see <http://www.gnu.org/licenses/>.
 */
-#include "ggApp.h"
 #include "ggGlobals.h"
 
-IMPLEMENT_APP(ggApp)
-
-ggApp::ggApp() : mFrame( nullptr )
-{
-    mConfigFile = new wxFileConfig( g_program_name, wxT("Michael A Bosse"), g_config_filename);
-}
-
-ggApp::~ggApp()
-{
-}
-
-bool ggApp::OnInit()
-{
-    mFrame = new ggFrame( mConfigFile.get() );
-    SetTopWindow( mFrame );
-    return true;
-}
+static const wxString g_program_name (wxT("GlslGenie"));
+static const wxString g_config_filename (wxT("glslgenie.config"));
+static const wxString g_window_width_str (wxT("/Window/Width"));
+static const wxString g_window_height_str (wxT("/Window/Height"));
+static const wxString g_window_x_str (wxT("/Window/X"));
+static const wxString g_window_y_str (wxT("/Window/Y"));

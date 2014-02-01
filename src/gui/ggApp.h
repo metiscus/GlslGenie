@@ -17,15 +17,19 @@
 #pragma once
 
 #include <wx/app.h>
+#include <wx/fileconf.h>
+#include <wx/sharedptr.h>
 #include "ggFrame.h"
 
 class ggApp : public wxApp
 {
 public:
     ggApp();
+    virtual ~ggApp();
 
     virtual bool OnInit();
 
 private:
     ggFrame *mFrame;
+    wxSharedPtr<wxFileConfig> mConfigFile;
 };

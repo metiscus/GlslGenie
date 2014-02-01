@@ -14,23 +14,13 @@
     You should have received a copy of the GNU General Public License
     along with GlslGenie.  If not, see <http://www.gnu.org/licenses/>.
 */
-#include "ggApp.h"
-#include "ggGlobals.h"
+#pragma once
 
-IMPLEMENT_APP(ggApp)
+#include <wx/wx.h>
 
-ggApp::ggApp() : mFrame( nullptr )
+class ggConsoleCtrl : public wxTextCtrl
 {
-    mConfigFile = new wxFileConfig( g_program_name, wxT("Michael A Bosse"), g_config_filename);
-}
-
-ggApp::~ggApp()
-{
-}
-
-bool ggApp::OnInit()
-{
-    mFrame = new ggFrame( mConfigFile.get() );
-    SetTopWindow( mFrame );
-    return true;
-}
+public:
+    ggConsoleCtrl( wxWindow *parent, wxWindowID id, const wxString &value=wxEmptyString, const wxPoint &pos=wxDefaultPosition, const wxSize &size=wxDefaultSize, long style=0 );
+    virtual ~ggConsoleCtrl();
+};
