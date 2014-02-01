@@ -27,7 +27,7 @@
 class ggFrame : public wxFrame
 {
 public:
-    ggFrame( wxFileConfig *configFile );
+    ggFrame( wxSharedPtr<wxFileConfig>& configFile );
     virtual ~ggFrame();
 
     virtual void Update();

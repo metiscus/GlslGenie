@@ -30,7 +30,7 @@ ggApp::~ggApp()
 
 bool ggApp::OnInit()
 {
-    mFrame = new ggFrame( mConfigFile.get() );
+    mFrame = new ggFrame( mConfigFile );
     SetTopWindow( mFrame );
     return true;
 }

@@ -17,7 +17,7 @@
 #include "ggFrame.h"
 #include "ggGlobals.h"
 
-ggFrame::ggFrame( wxFileConfig *configFile )
+ggFrame::ggFrame( wxSharedPtr<wxFileConfig>& configFile )
     : wxFrame( nullptr, -1, g_program_name, wxPoint(-1, -1), wxSize(500, 400))
     , mOglCanvas( nullptr )
     , mOglContext( nullptr )
