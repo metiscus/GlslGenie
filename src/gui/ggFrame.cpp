@@ -77,21 +77,21 @@ void ggFrame::Update()
 {
     // clear the buffer
     mGL.ClearColor(
-        mConfigFile->ReadDouble(prop_camera_clear_red, 0.0),
-        mConfigFile->ReadDouble(prop_camera_clear_green, 0.0),
-        mConfigFile->ReadDouble(prop_camera_clear_blue, 0.0),
-        mConfigFile->ReadDouble(prop_camera_clear_alpha, 0.0)
+        mConfigFile->ReadDouble(prop_camera_clear + "." + prop_camera_clear_red, 0.0),
+        mConfigFile->ReadDouble(prop_camera_clear + "." + prop_camera_clear_green, 0.0),
+        mConfigFile->ReadDouble(prop_camera_clear + "." + prop_camera_clear_blue, 0.0),
+        mConfigFile->ReadDouble(prop_camera_clear + "." + prop_camera_clear_alpha, 0.0)
     );
     mGL.Clear().ColorBuffer();
 
     // set the projection up
     oglplus::CamMatrixf camera = oglplus::CamMatrixf::Perspective(
-        mConfigFile->ReadDouble(prop_camera_proj_left, -1.0),
-        mConfigFile->ReadDouble(prop_camera_proj_right, 1.0),
-        mConfigFile->ReadDouble(prop_camera_proj_bottom, -1.0),
-        mConfigFile->ReadDouble(prop_camera_proj_top, 1.0),
-        mConfigFile->ReadDouble(prop_camera_proj_near, 1.0),
-        mConfigFile->ReadDouble(prop_camera_proj_far, 10.0)
+        mConfigFile->ReadDouble(prop_camera_proj + "." + prop_camera_proj_left, -1.0),
+        mConfigFile->ReadDouble(prop_camera_proj + "." + prop_camera_proj_right, 1.0),
+        mConfigFile->ReadDouble(prop_camera_proj + "." + prop_camera_proj_bottom, -1.0),
+        mConfigFile->ReadDouble(prop_camera_proj + "." + prop_camera_proj_top, 1.0),
+        mConfigFile->ReadDouble(prop_camera_proj + "." + prop_camera_proj_near, 1.0),
+        mConfigFile->ReadDouble(prop_camera_proj + "." + prop_camera_proj_far, 10.0)
     );
     
     mOglCanvas->SwapBuffers();
@@ -162,17 +162,18 @@ void ggFrame::BuildPropertyGrid()
     mPropGrid->EnableCategories(true);
     wxPGProperty *cameraProp = mPropGrid->Append( new wxPropertyCategory("Camera"));
     
-    wxPGProperty *projMat = mPropGrid->AppendIn( cameraProp, new wxPropertyCategory("Projection"));
-    mPropGrid->AppendIn( projMat, new wxFloatProperty(prop_camera_proj_left, wxPG_LABEL, mConfigFile->ReadDouble(prop_camera_proj_left, -1.0)));
-    mPropGrid->AppendIn( projMat, new wxFloatProperty(prop_camera_proj_right, wxPG_LABEL, mConfigFile->ReadDouble(prop_camera_proj_right, 1.0)));
-    mPropGrid->AppendIn( projMat, new wxFloatProperty(prop_camera_proj_bottom, wxPG_LABEL, mConfigFile->ReadDouble(prop_camera_proj_bottom, -1.0)));
-    mPropGrid->AppendIn( projMat, new wxFloatProperty(prop_camera_proj_top, wxPG_LABEL, mConfigFile->ReadDouble(prop_camera_proj_top, 1.0)));
-    mPropGrid->AppendIn( projMat, new wxFloatProperty(prop_camera_proj_near, wxPG_LABEL, mConfigFile->ReadDouble(prop_camera_proj_near, 1.0)));
-    mPropGrid->AppendIn( projMat, new wxFloatProperty(prop_camera_proj_far, wxPG_LABEL, mConfigFile->ReadDouble(prop_camera_proj_far, 10.0)));
+
+    wxPGProperty *projMat = mPropGrid->AppendIn( cameraProp, new wxStringProperty(prop_camera_proj, wxPG_LABEL, "<composed>"));
+    mPropGrid->AppendIn( projMat, new wxFloatProperty(prop_camera_proj_left, wxPG_LABEL, mConfigFile->ReadDouble(prop_camera_proj + "." + prop_camera_proj_left, -1.0)));
+    mPropGrid->AppendIn( projMat, new wxFloatProperty(prop_camera_proj_right, wxPG_LABEL, mConfigFile->ReadDouble(prop_camera_proj + "." + prop_camera_proj_right, 1.0)));
+    mPropGrid->AppendIn( projMat, new wxFloatProperty(prop_camera_proj_bottom, wxPG_LABEL, mConfigFile->ReadDouble(prop_camera_proj + "." + prop_camera_proj_bottom, -1.0)));
+    mPropGrid->AppendIn( projMat, new wxFloatProperty(prop_camera_proj_top, wxPG_LABEL, mConfigFile->ReadDouble(prop_camera_proj + "." + prop_camera_proj_top, 1.0)));
+    mPropGrid->AppendIn( projMat, new wxFloatProperty(prop_camera_proj_near, wxPG_LABEL, mConfigFile->ReadDouble(prop_camera_proj + "." + prop_camera_proj_near, 1.0)));
+    mPropGrid->AppendIn( projMat, new wxFloatProperty(prop_camera_proj_far, wxPG_LABEL, mConfigFile->ReadDouble(prop_camera_proj + "." + prop_camera_proj_far, 10.0)));
     
-    wxPGProperty *clearColor = mPropGrid->AppendIn( cameraProp, new wxPropertyCategory("Clear Color"));
-    mPropGrid->AppendIn( clearColor, new wxFloatProperty(prop_camera_clear_red, wxPG_LABEL, mConfigFile->ReadDouble(prop_camera_clear_red, 0.0)));
-    mPropGrid->AppendIn( clearColor, new wxFloatProperty(prop_camera_clear_green, wxPG_LABEL, mConfigFile->ReadDouble(prop_camera_clear_green, 0.0)));
-    mPropGrid->AppendIn( clearColor, new wxFloatProperty(prop_camera_clear_blue, wxPG_LABEL, mConfigFile->ReadDouble(prop_camera_clear_blue, 0.0)));
-    mPropGrid->AppendIn( clearColor, new wxFloatProperty(prop_camera_clear_alpha, wxPG_LABEL, mConfigFile->ReadDouble(prop_camera_clear_alpha, 0.0)));
+    wxPGProperty *clearColor = mPropGrid->AppendIn( cameraProp, new wxStringProperty(prop_camera_clear, wxPG_LABEL, "<composed>"));
+    mPropGrid->AppendIn( clearColor, new wxFloatProperty(prop_camera_clear_red, wxPG_LABEL, mConfigFile->ReadDouble(prop_camera_clear + "." + prop_camera_clear_red, 0.0)));
+    mPropGrid->AppendIn( clearColor, new wxFloatProperty(prop_camera_clear_green, wxPG_LABEL, mConfigFile->ReadDouble(prop_camera_clear + "." + prop_camera_clear_green, 0.0)));
+    mPropGrid->AppendIn( clearColor, new wxFloatProperty(prop_camera_clear_blue, wxPG_LABEL, mConfigFile->ReadDouble(prop_camera_clear + "." + prop_camera_clear_blue, 0.0)));
+    mPropGrid->AppendIn( clearColor, new wxFloatProperty(prop_camera_clear_alpha, wxPG_LABEL, mConfigFile->ReadDouble(prop_camera_clear + "." + prop_camera_clear_alpha, 0.0)));
 }

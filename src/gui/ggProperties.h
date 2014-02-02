@@ -18,12 +18,15 @@
 
 #include <wx/wx.h>
 
+extern const wxString prop_camera_proj;
 extern const wxString prop_camera_proj_left;
 extern const wxString prop_camera_proj_right;
 extern const wxString prop_camera_proj_bottom;
 extern const wxString prop_camera_proj_top;
 extern const wxString prop_camera_proj_near;
 extern const wxString prop_camera_proj_far;
+
+extern const wxString prop_camera_clear;
 extern const wxString prop_camera_clear_red;
 extern const wxString prop_camera_clear_green;
 extern const wxString prop_camera_clear_blue;

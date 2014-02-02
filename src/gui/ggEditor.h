@@ -16,23 +16,22 @@
 */
 #pragma once
 
-#include <wx/app.h>
-#include <wx/fileconf.h>
+#include <wx/wx.h>
 #include <wx/sharedptr.h>
-#include "ggFrame.h"
-#include "ggEditor.h"
+#include <wx/fileconf.h>
+#include <wx/stc/stc.h>
 
-class ggApp : public wxApp
+class ggEditor : public wxFrame
 {
 public:
-    ggApp();
-    virtual ~ggApp();
+    ggEditor( wxSharedPtr<wxFileConfig>& configFile );
+    virtual ~ggEditor();
 
-    virtual bool OnInit();
-    virtual bool OnQuit();
+    virtual void OnCommand(wxCommandEvent& evnt);
+    virtual void OnClose(wxCloseEvent& evnt);
 
 private:
-    ggFrame *mFrame;
-    ggEditor *mEditor;
-    wxSharedPtr<wxFileConfig> mConfigFile;
+    bool mIsNew;
+    wxString mFilename;
+    wxStyledTextCtrl *mTextControl;
 };

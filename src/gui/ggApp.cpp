@@ -19,7 +19,9 @@
 
 IMPLEMENT_APP(ggApp)
 
-ggApp::ggApp() : mFrame( nullptr )
+ggApp::ggApp() 
+    : mFrame( nullptr )
+    , mEditor( nullptr )
 {
     mConfigFile = new wxFileConfig( g_program_name, wxT("Michael A Bosse"), g_config_filename);
 }
@@ -32,6 +34,10 @@ bool ggApp::OnInit()
 {
     mFrame = new ggFrame( mConfigFile );
     SetTopWindow( mFrame );
+
+    mEditor = new ggEditor( mConfigFile );
+    mEditor->Show();
+
     return true;
 }
 
