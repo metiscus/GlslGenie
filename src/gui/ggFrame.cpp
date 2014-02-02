@@ -16,13 +16,14 @@
 */
 #include "ggFrame.h"
 #include "ggGlobals.h"
+#include "ggProperties.h"
 
 ggFrame::ggFrame( wxSharedPtr<wxFileConfig>& configFile )
     : wxFrame( nullptr, -1, g_program_name, wxPoint(-1, -1), wxSize(500, 400))
     , mOglCanvas( nullptr )
     , mOglContext( nullptr )
-    , mOglPanel( nullptr )
     , mConfigFile( configFile )
+    , mPropGrid( nullptr )
 {          
     static int glFlags[] = {
         WX_GL_RGBA,
@@ -31,22 +32,23 @@ ggFrame::ggFrame( wxSharedPtr<wxFileConfig>& configFile )
         0
     };    
 
-    mOglPanel = new wxPanel( this, wxID_ANY, wxDefaultPosition, wxDefaultSize );
-    mOglCanvas = new wxGLCanvas( mOglPanel, wxID_ANY, glFlags, wxDefaultPosition, wxSize(500,400) );
+    wxBoxSizer *topSizer = new wxBoxSizer(wxHORIZONTAL);
+
+    mOglCanvas = new wxGLCanvas( this, wxID_ANY, glFlags, wxDefaultPosition, wxSize(500,400) );
     mOglContext = new wxGLContext( mOglCanvas );
     mOglContext->SetCurrent(*mOglCanvas);
+    topSizer->Add(mOglCanvas, 1, wxEXPAND);
 
     if(glewInit() != GLEW_OK) 
-        abort();
+        abort();   
 
-    wxBoxSizer *oglPanelSizer = new wxBoxSizer(wxHORIZONTAL);
-    oglPanelSizer->Add(mOglPanel, 1, wxEXPAND);     
 
-    wxBoxSizer* oglCanvasSizer = new wxBoxSizer(wxVERTICAL);
-    oglCanvasSizer->Add(mOglCanvas, 1, wxEXPAND);
-    mOglPanel->SetSizer(oglCanvasSizer);
+    mPropGrid = new wxPropertyGrid( this, wxID_ANY, wxDefaultPosition, wxSize(300, 400), wxPG_NO_INTERNAL_BORDER );
+    BuildPropertyGrid();
+    topSizer->Add(mPropGrid, 0, wxEXPAND);
+    Connect( wxEVT_PG_CHANGED, wxPropertyGridEventHandler(ggFrame::OnPropChange) );
 
-    SetSizerAndFit( oglPanelSizer );
+    SetSizerAndFit( topSizer );
 
     Connect( wxEVT_SIZE, wxSizeEventHandler(ggFrame::OnResize) );
     SetExtraStyle(wxWS_EX_PROCESS_IDLE);
@@ -73,8 +75,25 @@ ggFrame::~ggFrame()
 
 void ggFrame::Update()
 {
-    mGL.ClearColor(0.0, 0.0, 0.0, 0.0);
+    // clear the buffer
+    mGL.ClearColor(
+        mConfigFile->ReadDouble(prop_camera_clear_red, 0.0),
+        mConfigFile->ReadDouble(prop_camera_clear_green, 0.0),
+        mConfigFile->ReadDouble(prop_camera_clear_blue, 0.0),
+        mConfigFile->ReadDouble(prop_camera_clear_alpha, 0.0)
+    );
     mGL.Clear().ColorBuffer();
+
+    // set the projection up
+    oglplus::CamMatrixf camera = oglplus::CamMatrixf::Perspective(
+        mConfigFile->ReadDouble(prop_camera_proj_left, -1.0),
+        mConfigFile->ReadDouble(prop_camera_proj_right, 1.0),
+        mConfigFile->ReadDouble(prop_camera_proj_bottom, -1.0),
+        mConfigFile->ReadDouble(prop_camera_proj_top, 1.0),
+        mConfigFile->ReadDouble(prop_camera_proj_near, 1.0),
+        mConfigFile->ReadDouble(prop_camera_proj_far, 10.0)
+    );
+    
     mOglCanvas->SwapBuffers();
 }
 
@@ -110,6 +129,12 @@ void ggFrame::OnClose(wxCloseEvent& evnt)
     Destroy();
 }
 
+void ggFrame::OnPropChange(wxPropertyGridEvent& evnt)
+{
+    mConfigFile->Write(evnt.GetPropertyName(), evnt.GetPropertyValue().GetReal());
+    mConfigFile->Flush(); 
+}
+
 void ggFrame::BuildMenu()
 {
     wxMenuBar *menuBar = new wxMenuBar();
@@ -130,4 +155,24 @@ void ggFrame::UpdateConfig()
     mConfigFile->Write(g_window_x_str, windowSize.GetLeft());
     mConfigFile->Write(g_window_y_str, windowSize.GetBottom());
     mConfigFile->Flush();    
+}
+
+void ggFrame::BuildPropertyGrid()
+{
+    mPropGrid->EnableCategories(true);
+    wxPGProperty *cameraProp = mPropGrid->Append( new wxPropertyCategory("Camera"));
+    
+    wxPGProperty *projMat = mPropGrid->AppendIn( cameraProp, new wxPropertyCategory("Projection"));
+    mPropGrid->AppendIn( projMat, new wxFloatProperty(prop_camera_proj_left, wxPG_LABEL, mConfigFile->ReadDouble(prop_camera_proj_left, -1.0)));
+    mPropGrid->AppendIn( projMat, new wxFloatProperty(prop_camera_proj_right, wxPG_LABEL, mConfigFile->ReadDouble(prop_camera_proj_right, 1.0)));
+    mPropGrid->AppendIn( projMat, new wxFloatProperty(prop_camera_proj_bottom, wxPG_LABEL, mConfigFile->ReadDouble(prop_camera_proj_bottom, -1.0)));
+    mPropGrid->AppendIn( projMat, new wxFloatProperty(prop_camera_proj_top, wxPG_LABEL, mConfigFile->ReadDouble(prop_camera_proj_top, 1.0)));
+    mPropGrid->AppendIn( projMat, new wxFloatProperty(prop_camera_proj_near, wxPG_LABEL, mConfigFile->ReadDouble(prop_camera_proj_near, 1.0)));
+    mPropGrid->AppendIn( projMat, new wxFloatProperty(prop_camera_proj_far, wxPG_LABEL, mConfigFile->ReadDouble(prop_camera_proj_far, 10.0)));
+    
+    wxPGProperty *clearColor = mPropGrid->AppendIn( cameraProp, new wxPropertyCategory("Clear Color"));
+    mPropGrid->AppendIn( clearColor, new wxFloatProperty(prop_camera_clear_red, wxPG_LABEL, mConfigFile->ReadDouble(prop_camera_clear_red, 0.0)));
+    mPropGrid->AppendIn( clearColor, new wxFloatProperty(prop_camera_clear_green, wxPG_LABEL, mConfigFile->ReadDouble(prop_camera_clear_green, 0.0)));
+    mPropGrid->AppendIn( clearColor, new wxFloatProperty(prop_camera_clear_blue, wxPG_LABEL, mConfigFile->ReadDouble(prop_camera_clear_blue, 0.0)));
+    mPropGrid->AppendIn( clearColor, new wxFloatProperty(prop_camera_clear_alpha, wxPG_LABEL, mConfigFile->ReadDouble(prop_camera_clear_alpha, 0.0)));
 }

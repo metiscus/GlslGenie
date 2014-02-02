@@ -14,11 +14,15 @@
     You should have received a copy of the GNU General Public License
     along with GlslGenie.  If not, see <http://www.gnu.org/licenses/>.
 */
-#include "ggGlobals.h"
+#pragma once
 
-const wxString g_program_name (wxT("GlslGenie"));
-const wxString g_config_filename (wxT("glslgenie.config"));
-const wxString g_window_width_str (wxT("/Window/Width"));
-const wxString g_window_height_str (wxT("/Window/Height"));
-const wxString g_window_x_str (wxT("/Window/X"));
-const wxString g_window_y_str (wxT("/Window/Y"));
+class Object
+{
+public:
+    Object();
+    int GetId();
+
+private:
+    int mId;
+    static int s_mId;
+};

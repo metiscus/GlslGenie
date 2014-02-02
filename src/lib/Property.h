@@ -14,11 +14,32 @@
     You should have received a copy of the GNU General Public License
     along with GlslGenie.  If not, see <http://www.gnu.org/licenses/>.
 */
-#include "ggGlobals.h"
+#pragma once
 
-const wxString g_program_name (wxT("GlslGenie"));
-const wxString g_config_filename (wxT("glslgenie.config"));
-const wxString g_window_width_str (wxT("/Window/Width"));
-const wxString g_window_height_str (wxT("/Window/Height"));
-const wxString g_window_x_str (wxT("/Window/X"));
-const wxString g_window_y_str (wxT("/Window/Y"));
+#include <wx/any.h>
+#include <wx/wx.h>
+
+enum PropertyType {
+    PROP_INT,
+    PROP_FLOAT,
+    PROP_VEC3,
+    PROP_VEC4,
+    PROP_MATRIX,
+    PROP_SHADER,
+    PROP_PROGRAM,
+    PROP_TEXTURE,
+    PROP_SHAPE
+};
+
+class Property
+{
+public:
+    Property( wxString name, PropertyType type, wxAny& value );
+    wxString GetName();
+    wxAny& GetValue();
+    PropertyType GetType();
+private:
+    wxAny    mProperty;
+    wxString mName;
+    PropertyType mType;
+};

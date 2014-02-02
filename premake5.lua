@@ -63,6 +63,7 @@ solution "GlslGenie"
 			"extern/oglplus/build/include",
 			"extern/glew-1.10.0/include",
 			"extern/freeglut/include",
+			"extern/rapidxml-1.13",
 			-- wxWidgets
 			"c:/wxWidgets-2.9.5/include", 
 			"c:/wxWidgets-2.9.5/include/msvc", 

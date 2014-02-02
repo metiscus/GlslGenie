@@ -19,10 +19,14 @@
 #include <GL/glew.h>
 #include <oglplus/all.hpp>
 
+#include <map>
+
 #include <wx/wx.h>
+#include <wx/variant.h>
 #include <wx/glcanvas.h>
 #include <wx/sharedptr.h>
 #include <wx/fileconf.h>
+#include <wx/propgrid/propgrid.h>
 
 class ggFrame : public wxFrame
 {
@@ -35,15 +39,16 @@ public:
     virtual void OnResize(wxSizeEvent& evnt);
     virtual void OnCommand(wxCommandEvent& evnt);
     virtual void OnClose(wxCloseEvent& evnt);
+    virtual void OnPropChange(wxPropertyGridEvent& evnt);
 
 private:
-    wxPanel *mOglPanel;
-    wxPanel *mCommandPanel;
     wxGLCanvas *mOglCanvas;
     wxGLContext *mOglContext;
     oglplus::Context mGL;
     wxSharedPtr<wxFileConfig> mConfigFile;
+    wxPropertyGrid *mPropGrid;
 
     void BuildMenu();
     void UpdateConfig();
+    void BuildPropertyGrid();
 };
