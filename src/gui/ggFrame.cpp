@@ -52,6 +52,7 @@ ggFrame::ggFrame( wxSharedPtr<wxFileConfig>& configFile )
     SetExtraStyle(wxWS_EX_PROCESS_IDLE);
     wxIdleEvent::SetMode(wxIDLE_PROCESS_SPECIFIED);
     Connect( wxEVT_IDLE, wxIdleEventHandler(ggFrame::OnIdle) );
+    Connect( wxEVT_CLOSE_WINDOW, wxCloseEventHandler(ggFrame::OnClose));
 
     BuildMenu();
 
@@ -95,16 +96,18 @@ void ggFrame::OnResize(wxSizeEvent& evnt)
     evnt.Skip();
 }
 
-void ggFrame::OnQuit(wxCommandEvent& evnt)
+void ggFrame::OnCommand(wxCommandEvent& evnt)
+{    
+    if( evnt.GetId() == wxID_EXIT )
+    {
+        Close(false);
+    }
+}
+
+void ggFrame::OnClose(wxCloseEvent& evnt)
 {
-    wxRect windowSize = GetRect();
-    mConfigFile->Write(g_window_width_str, windowSize.GetWidth());
-    mConfigFile->Write(g_window_height_str, windowSize.GetHeight());
-    mConfigFile->Write(g_window_x_str, windowSize.GetLeft());
-    mConfigFile->Write(g_window_y_str, windowSize.GetBottom());
-    mConfigFile->Flush();
-    
-    Close(true);
+    UpdateConfig();
+    Destroy();
 }
 
 void ggFrame::BuildMenu()
@@ -116,5 +119,15 @@ void ggFrame::BuildMenu()
     SetMenuBar(menuBar);
 
     Connect(wxID_EXIT, wxEVT_COMMAND_MENU_SELECTED,
-        wxCommandEventHandler(ggFrame::OnQuit));
+        wxCommandEventHandler(ggFrame::OnCommand));
+}
+
+void ggFrame::UpdateConfig()
+{
+    wxRect windowSize = GetRect();
+    mConfigFile->Write(g_window_width_str, windowSize.GetWidth());
+    mConfigFile->Write(g_window_height_str, windowSize.GetHeight());
+    mConfigFile->Write(g_window_x_str, windowSize.GetLeft());
+    mConfigFile->Write(g_window_y_str, windowSize.GetBottom());
+    mConfigFile->Flush();    
 }

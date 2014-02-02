@@ -28,6 +28,7 @@ public:
     virtual ~ggApp();
 
     virtual bool OnInit();
+    virtual bool OnQuit();
 
 private:
     ggFrame *mFrame;

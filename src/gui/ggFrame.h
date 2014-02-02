@@ -33,7 +33,8 @@ public:
     virtual void Update();
     virtual void OnIdle(wxIdleEvent& evnt);
     virtual void OnResize(wxSizeEvent& evnt);
-    virtual void OnQuit(wxCommandEvent& evnt);
+    virtual void OnCommand(wxCommandEvent& evnt);
+    virtual void OnClose(wxCloseEvent& evnt);
 
 private:
     wxPanel *mOglPanel;
@@ -44,5 +45,5 @@ private:
     wxSharedPtr<wxFileConfig> mConfigFile;
 
     void BuildMenu();
-    void ReadConfig();
+    void UpdateConfig();
 };

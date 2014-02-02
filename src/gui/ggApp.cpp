@@ -34,3 +34,9 @@ bool ggApp::OnInit()
     SetTopWindow( mFrame );
     return true;
 }
+
+bool ggApp::OnQuit()
+{
+       
+    return true;
+}
