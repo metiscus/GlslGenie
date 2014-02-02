@@ -2,8 +2,11 @@ dofile "bulkbuild.lua"
 
 --updateBulkBuild();
 
+local action = _ACTION or ""
+
 solution "GlslGenie"
 	configurations { "Debug", "Release" }
+	location( "build/" .. action )
 	
 	configuration "Debug"
 		defines { "DEBUG" }
@@ -12,8 +15,35 @@ solution "GlslGenie"
 	configuration "Release"
 		defines { "NDEBUG" }
         flags { "Optimize" } 
+
+	project "Lua-5.1"
+		location( "build/" .. action )
+		kind "StaticLib"
+		language "C"
+		defines { "_CRT_SECURE_NO_WARNINGS" }
+		files { "tools/lua-5.1/src/*.c", "tools/lua-5.1/src/*.h" }
+		excludes { "tools/lua-5.1/src/lua.c", "tools/lua-5.1/src/luac.c" }
+	
+	project "libtolua++"
+		location( "build/" .. action )
+		kind "StaticLib"
+		language "C++"
+		defines { "_CRT_SECURE_NO_WARNINGS" }
+		files { "tools/tolua/lib_src/*.*" }
+		links { "Lua-5.1" }
+		includedirs{ "tools/lua-5.1/src/" }
+		
+	project "tolua++"
+		location( "build/" .. action )
+		kind "ConsoleApp"
+		language "C++"
+		defines { "_CRT_SECURE_NO_WARNINGS" }
+		files { "tools/tolua/bin_src/*.*", }
+		links { "Lua-5.1", "libtolua++" }
+		includedirs{ "tools/lua-5.1/src/", "tools/tolua/lib_src" }
 		
 	project "GlslGenie"
+		location( "build/" .. action )
 		kind "WindowedApp"
 		language "C++"
 		files { "src/**.cpp",
@@ -38,6 +68,10 @@ solution "GlslGenie"
 			"c:/wxWidgets-2.9.5/include/msvc", 
 			"c:/wxWidgets-2.9.5/lib/"			
 		}
+		
+		if action == "clean" then
+		  os.rmdir("build")
+		end		
 		
 		libdirs{
 			"extern/freeglut/lib",
