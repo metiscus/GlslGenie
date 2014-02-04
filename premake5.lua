@@ -64,6 +64,8 @@ solution "GlslGenie"
 			"extern/glew-1.10.0/include",
 			"extern/freeglut/include",
 			"extern/rapidxml-1.13",
+			"extern/libpng-1.2.37/include",
+			"extern/zlib-1.2.7/",
 			-- wxWidgets
 			"c:/wxWidgets-2.9.5/include", 
 			"c:/wxWidgets-2.9.5/include/msvc", 

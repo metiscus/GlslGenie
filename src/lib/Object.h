@@ -16,13 +16,24 @@
 */
 #pragma once
 
+#include <map>
+#include <vector>
+
+#include <wx/wx.h>
+
+struct ObjectData;
+
 class Object
 {
 public:
     Object();
+    ~Object();
+    void LoadFromFile( wxString filename );
     int GetId();
+    ObjectData* GetData();
 
 private:
     int mId;
     static int s_mId;
+    ObjectData *mData;
 };
