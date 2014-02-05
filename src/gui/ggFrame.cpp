@@ -17,6 +17,22 @@
 #include "ggFrame.h"
 #include "ggGlobals.h"
 #include "ggProperties.h"
+#include "../lib/Object.h"
+#include "../lib/ObjectData.h"
+
+static inline std::string fileToString( const char* filename )
+{
+    std::string ret;
+    std::ifstream infile( filename );
+    while( infile.is_open() && !infile.eof() )
+    {
+        std::string line;
+        std::getline(infile, line);
+        ret += line + "\n";
+    }
+    infile.close();
+    return ret;
+}
 
 ggFrame::ggFrame( wxSharedPtr<wxFileConfig>& configFile )
     : wxFrame( nullptr, -1, g_program_name, wxPoint(-1, -1), wxSize(500, 400))
@@ -67,6 +83,9 @@ ggFrame::ggFrame( wxSharedPtr<wxFileConfig>& configFile )
     windowSize.SetBottom( mConfigFile->ReadLong(g_window_y_str, -1) );
     
     SetSize(windowSize);
+
+    mObject = new Object();
+    mObject->LoadFromFile(fileToString("model.xml").c_str());
 }
 
 ggFrame::~ggFrame()
@@ -85,7 +104,7 @@ void ggFrame::Update()
     mGL.Clear().ColorBuffer();
 
     // set the projection up
-    oglplus::CamMatrixf camera = oglplus::CamMatrixf::Perspective(
+    oglplus::CamMatrixf projectionMatrix = oglplus::CamMatrixf::Perspective(
         mConfigFile->ReadDouble(prop_camera_proj + "." + prop_camera_proj_left, -1.0),
         mConfigFile->ReadDouble(prop_camera_proj + "." + prop_camera_proj_right, 1.0),
         mConfigFile->ReadDouble(prop_camera_proj + "." + prop_camera_proj_bottom, -1.0),
@@ -93,7 +112,35 @@ void ggFrame::Update()
         mConfigFile->ReadDouble(prop_camera_proj + "." + prop_camera_proj_near, 1.0),
         mConfigFile->ReadDouble(prop_camera_proj + "." + prop_camera_proj_far, 10.0)
     );
+
     
+    auto projection =
+        oglplus::CamMatrixf::PerspectiveX(
+        oglplus::Degrees(60),
+        double(GetRect().GetWidth())/double(GetRect().GetHeight()),
+        0.1, 10000
+    );
+    
+    static float time = 0.0;
+    time += 0.016667;
+
+
+    auto camera =
+        oglplus::CamMatrixf::Orbiting(
+        mObject->GetData()->shape->BoundingSphere().Center(),
+        mObject->GetData()->shape->BoundingSphere().Radius()*2.8,
+        oglplus::FullCircles(time / 19.0),
+        oglplus::Degrees(oglplus::SineWave(time / 17.0) * 90)
+        );
+
+    mObject->GetData()->program.Use();
+    mObject->GetData()->projectionMatrix->Set(projection);
+    mObject->GetData()->program.Use();
+    mObject->GetData()->cameraMatrix->Set(oglplus::Mat4f());
+    
+    mGL.FrontFace(mObject->GetData()->shape->FaceWinding());
+    mObject->GetData()->shape->Draw();
+
     mOglCanvas->SwapBuffers();
 }
 
@@ -107,11 +154,12 @@ void ggFrame::OnResize(wxSizeEvent& evnt)
 {
     int w, h, x, y;
     wxRect rect = evnt.GetRect();
+    wxSize size = evnt.GetSize();
     y = rect.GetBottom();
     x = rect.GetLeft();
     h = rect.GetHeight();
     w = rect.GetWidth();
-    mGL.Viewport( x, y, w, h );
+    mGL.Viewport( 0, 0, size.GetWidth(), size.GetHeight() );
     evnt.Skip();
 }
 

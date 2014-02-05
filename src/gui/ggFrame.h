@@ -28,6 +28,8 @@
 #include <wx/fileconf.h>
 #include <wx/propgrid/propgrid.h>
 
+class Object;
+
 class ggFrame : public wxFrame
 {
 public:
@@ -47,6 +49,8 @@ private:
     oglplus::Context mGL;
     wxSharedPtr<wxFileConfig> mConfigFile;
     wxPropertyGrid *mPropGrid;
+
+    Object *mObject;
 
     void BuildMenu();
     void UpdateConfig();

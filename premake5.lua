@@ -79,10 +79,11 @@ solution "GlslGenie"
 		libdirs{
 			"extern/freeglut/lib",
 			"extern/glew-1.10.0/lib/Release/Win32",
+			"extern/libpng-1.2.37/lib",
 			-- wxWidgets
-			"c:/wxWidgets-2.9.5/lib/vc_lib" 
+			"c:/wxWidgets-2.9.5/lib/vc_lib"			
 			}
-		links{"glew32"}
+		links{"glew32", "libpng"}
 		
 --	project "GlslGenie_BulkBuild"
 --		kind "WindowedApp"

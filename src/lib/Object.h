@@ -32,6 +32,8 @@ public:
     int GetId();
     ObjectData* GetData();
 
+
+
 private:
     int mId;
     static int s_mId;

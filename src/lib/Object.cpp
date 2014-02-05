@@ -18,44 +18,15 @@
 #include <GL/glew.h>
 
 #include <cstddef>
+#include <string>
+#include <fstream>
 
 #include <rapidxml.hpp>
 
-#include <oglplus/gl.hpp>
-#include <oglplus/all.hpp>
-#include <oglplus/shapes/obj_mesh.hpp>
-#include <oglplus/shapes/wrapper.hpp>
-#include <oglplus/opt/resources.hpp>
-#include <oglplus/opt/list_init.hpp>
-#include <oglplus/images/load.hpp>
-
+#include "ObjectData.h"
 #include "Object.h"
 
 int Object::s_mId = 0;
-
-struct ObjectData
-{
-    oglplus::VertexShader vertexShader;
-    oglplus::FragmentShader fragmentShader;
-    oglplus::Program program;
-    oglplus::LazyUniform<oglplus::Mat4f> *modelMatrix;
-    //oglplus::VertexArray shape;
-    //oglplus::Buffer verts, normals;
-    oglplus::Texture tex;
-    oglplus::shapes::ShapeWrapper *shape;
-
-    ObjectData() 
-        : modelMatrix(nullptr)
-        , shape(nullptr)
-    {
-
-    }
-
-    ~ObjectData() 
-    {
-        delete modelMatrix;
-    }
-};
 
 Object::Object()
     : mData( new ObjectData )
@@ -78,6 +49,20 @@ ObjectData* Object::GetData()
     return mData;
 }
 
+static inline std::string fileToString( const char* filename )
+{
+    std::string ret;
+    std::ifstream infile( filename );
+    while( infile.is_open() && !infile.eof() )
+    {
+        std::string line;
+        std::getline(infile, line);
+        ret += line + "\n";
+    }
+    infile.close();
+    return ret;
+}
+
 void Object::LoadFromFile( wxString filename )
 {
     //using namespace rapidxml;
@@ -91,7 +76,9 @@ void Object::LoadFromFile( wxString filename )
         rapidxml::xml_node<> *pModelNode = pObjectNode->first_node("model");
         if( pModelNode )
         {
-            std::ifstream input ((const char*)pModelNode->first_attribute("file"));
+            std::ifstream input(pModelNode->first_attribute("file")->value());
+            //((const char*)pModelNode->first_attribute("file"));
+            //oglplus::OpenResourceFile(input, "models", pModelNode->first_attribute("file")->value(), ".obj");
             mData->shape = new oglplus::shapes::ShapeWrapper (
                 oglplus::List("Position")("Normal")("Material").Get(),
                 oglplus::shapes::ObjMesh(
@@ -104,7 +91,44 @@ void Object::LoadFromFile( wxString filename )
         rapidxml::xml_node<> *pTextureNode = pObjectNode->first_node("texture");
         if( pTextureNode )
         {
-            //oglplus::Texture::Image2D(oglplus::images::LoadTexture(std::string(pTextureNode->first_attribute("file"))));
+            std::string textureFilename = pTextureNode->first_attribute("file")->value();
+            auto bound_tex = Bind(mData->tex, oglplus::TextureTarget::_2D);
+            bound_tex.Image2D(oglplus::images::LoadTexture(textureFilename.c_str()));
+            bound_tex.MinFilter(oglplus::TextureMinFilter::Linear);
+            bound_tex.MagFilter(oglplus::TextureMagFilter::Linear);
+            bound_tex.Anisotropy(2.0f);
+            bound_tex.WrapS(oglplus::TextureWrap::Repeat);
+            bound_tex.WrapT(oglplus::TextureWrap::Repeat);
         }
+
+        rapidxml::xml_node<> *pVShaderNode = pObjectNode->first_node("vshader");
+        if( pVShaderNode )
+        {
+            std::string shaderFilename = pVShaderNode->first_attribute("file")->value(); 
+            mData->vertexShader.Source(fileToString(shaderFilename.c_str()));
+            mData->vertexShader.Compile();
+        }
+
+        rapidxml::xml_node<> *pFShaderNode = pObjectNode->first_node("fshader");
+        if( pFShaderNode )
+        {
+            std::string shaderFilename = pFShaderNode->first_attribute("file")->value(); 
+            mData->fragmentShader.Source(fileToString(shaderFilename.c_str()));
+            mData->fragmentShader.Compile();
+        }
+
+        mData->program.AttachShader(mData->fragmentShader);
+        mData->program.AttachShader(mData->vertexShader);
+        
+        mData->modelMatrix      = new oglplus::LazyUniform<oglplus::Mat4f> (mData->program, "ModelMatrix");
+        mData->cameraMatrix     = new oglplus::LazyUniform<oglplus::Mat4f> (mData->program, "CameraMatrix");
+        mData->projectionMatrix = new oglplus::LazyUniform<oglplus::Mat4f> (mData->program, "ProjectionMatrix");
+       
+        mData->program.Link();
+
+        mData->vao = mData->shape->VAOForProgram(mData->program);
+
+        mData->shape->UseInProgram(mData->program);
+        mData->program.Use();
     }
 }
