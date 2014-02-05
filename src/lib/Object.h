@@ -18,24 +18,42 @@
 
 #include <map>
 #include <vector>
+#include <string>
 
-#include <wx/wx.h>
+class Object;
+class ObjectData;
 
-struct ObjectData;
+typedef int guid_t;
+typedef std::vector<guid_t> guidlist_t;
+typedef std::map<guid_t, Object*> objectmap_t;
+
+#include "ObjectPropertyBinding.h"
 
 class Object
 {
 public:
-    Object();
-    ~Object();
-    void LoadFromFile( wxString filename );
-    int GetId();
+    static Object* LookupObject( guid_t id );
+    Object( ObjectData *data );
+    virtual ~Object();
+    virtual bool LoadFromFile( const std::string& filename );
+    virtual bool WriteToFile( const std::string& filename );
+    void SetName( const std::string& name );
+    const std::string& GetName() const;
+
+    guid_t GetId();
+
+    PropertyBindingList GetProperties();
+
+protected:
     ObjectData* GetData();
 
-
+    PropertyBindingList mPropertyBindings;
 
 private:
-    int mId;
-    static int s_mId;
+    guid_t mId;
+    static guid_t s_mId;
+    std::string mName;
     ObjectData *mData;
+
+    static objectmap_t s_mObjectMap;
 };

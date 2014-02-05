@@ -17,8 +17,10 @@
 #include "ggFrame.h"
 #include "ggGlobals.h"
 #include "ggProperties.h"
-#include "../lib/Object.h"
+#include "../lib/All.h"
 #include "../lib/ObjectData.h"
+
+enum { ggID_CREATE_TEXTURE = 1 };
 
 static inline std::string fileToString( const char* filename )
 {
@@ -84,8 +86,8 @@ ggFrame::ggFrame( wxSharedPtr<wxFileConfig>& configFile )
     
     SetSize(windowSize);
 
-    mObject = new Object();
-    mObject->LoadFromFile(fileToString("model.xml").c_str());
+    //mObject = new Object();
+    //mObject->LoadFromFile(fileToString("model.xml").c_str());
 }
 
 ggFrame::~ggFrame()
@@ -125,7 +127,7 @@ void ggFrame::Update()
     time += 0.016667;
 
 
-    auto camera =
+/*    auto camera =
         oglplus::CamMatrixf::Orbiting(
         mObject->GetData()->shape->BoundingSphere().Center(),
         mObject->GetData()->shape->BoundingSphere().Radius()*2.8,
@@ -140,6 +142,7 @@ void ggFrame::Update()
     
     mGL.FrontFace(mObject->GetData()->shape->FaceWinding());
     mObject->GetData()->shape->Draw();
+*/
 
     mOglCanvas->SwapBuffers();
 }
@@ -165,9 +168,25 @@ void ggFrame::OnResize(wxSizeEvent& evnt)
 
 void ggFrame::OnCommand(wxCommandEvent& evnt)
 {    
-    if( evnt.GetId() == wxID_EXIT )
+    switch (evnt.GetId())
     {
-        Close(false);
+    case wxID_EXIT:
+        {
+            close(false);
+        }
+        break;
+    case ggID_CREATE_TEXTURE:
+        {
+            Texture *pTexture = new Texture();
+            pTexture->GetId();
+
+            wxPGProperty *textureProp = mPropGrid->Append( new wxPropertyCategory("Texture"));
+            PropertyBindingList properties = pTexture->GetProperties();
+            for( int ii=0; ii<properties.size(); ++ii )
+            {
+                mPropGrid->AppendIn( textureProp, new wxStringProperty(properties[ii]->GetName(), wxPG_LABEL, properties[ii]->GetValue()));
+            }
+        }
     }
 }
 
@@ -189,9 +208,13 @@ void ggFrame::BuildMenu()
     wxMenu* fileMenu = new wxMenu();
     fileMenu->Append(wxID_EXIT, wxT("&Quit"));
     menuBar->Append(fileMenu, wxT("&File"));
+    fileMenu->Append(ggID_CREATE_TEXTURE, wxT("New Texture"));
     SetMenuBar(menuBar);
 
     Connect(wxID_EXIT, wxEVT_COMMAND_MENU_SELECTED,
+        wxCommandEventHandler(ggFrame::OnCommand));
+
+    Connect(ggID_CREATE_TEXTURE, wxEVT_COMMAND_MENU_SELECTED,
         wxCommandEventHandler(ggFrame::OnCommand));
 }
 

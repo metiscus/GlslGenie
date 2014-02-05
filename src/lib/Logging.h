@@ -16,18 +16,19 @@
 */
 #pragma once
 
-#include <fstream>
+#include <string>
 
-#include "ObjectPropertyBinding.h"
-
-class ObjectData
+namespace Logging
 {
-public:
-    ObjectData() { }
-    virtual ~ObjectData() { }
+    enum Level {
+        LOG_DEBUG = 1,
+        LOG_TRACE = 2,
+        LOG_WARN  = 4,
+        LOG_ERROR = 8
+    };
 
-    virtual void ClearData() = 0;
-    virtual bool LoadFromFile( std::ifstream& filename ) = 0;
-    virtual bool WriteToFile( std::ofstream& filename ) = 0;
-    virtual PropertyBindingList GetProperties() { return PropertyBindingList(); }
+    void debug ( const char* format, ... );
+    void trace ( const char* format, ... );
+    void warn  ( const char* format, ... );
+    void error ( const char* format, ... );
 };

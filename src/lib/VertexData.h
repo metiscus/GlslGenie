@@ -16,18 +16,11 @@
 */
 #pragma once
 
-#include <fstream>
+#include <wx/wx.h>
 
-#include "ObjectPropertyBinding.h"
+#include "Object.h"
 
-class ObjectData
+class VertexData : public Object
 {
 public:
-    ObjectData() { }
-    virtual ~ObjectData() { }
-
-    virtual void ClearData() = 0;
-    virtual bool LoadFromFile( std::ifstream& filename ) = 0;
-    virtual bool WriteToFile( std::ofstream& filename ) = 0;
-    virtual PropertyBindingList GetProperties() { return PropertyBindingList(); }
 };

@@ -16,18 +16,28 @@
 */
 #pragma once
 
-#include <fstream>
+#include "..\lib\GenericData.h"
+#include <vector>
 
-#include "ObjectPropertyBinding.h"
+class ObjectPropertyBinding;
 
-class ObjectData
+typedef std::vector<ObjectPropertyBinding*> PropertyBindingList;
+
+class ObjectPropertyBinding
 {
 public:
-    ObjectData() { }
-    virtual ~ObjectData() { }
+    enum BindingType { STRING, INT, FLOAT, VEC2, VEC3, VEC4 }; // these should match GenericData.h with the exception of INVALID == STRING
+    ObjectPropertyBinding( const std::string& name, BindingType type );
+    std::string GetName();
+    BindingType GetType();
+    void SetValue( const std::string& value );
+    void Bind( std::string *data );
+    void Bind( GenericData *data );
+    std::string GetValue();
 
-    virtual void ClearData() = 0;
-    virtual bool LoadFromFile( std::ifstream& filename ) = 0;
-    virtual bool WriteToFile( std::ofstream& filename ) = 0;
-    virtual PropertyBindingList GetProperties() { return PropertyBindingList(); }
+private:
+    BindingType mType;
+    std::string mName;
+    std::string *mStringData;
+    GenericData *mData;
 };

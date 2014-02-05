@@ -15,31 +15,45 @@
     along with GlslGenie.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include <GL/glew.h>
-
-#include <cstddef>
-#include <string>
 #include <fstream>
-
-#include <rapidxml.hpp>
+#include <string>
 
 #include "ObjectData.h"
 #include "Object.h"
 
-int Object::s_mId = 0;
+#include "ObjectPropertyBinding.h"
 
-Object::Object()
-    : mData( new ObjectData )
+guid_t Object::s_mId = 0;
+objectmap_t Object::s_mObjectMap;
+
+Object* Object::LookupObject( guid_t guid )
+{
+    objectmap_t::const_iterator itr = s_mObjectMap.find(guid);
+    if( itr != s_mObjectMap.end() )
+        return itr->second;
+    else
+        return nullptr;
+}
+
+Object::Object(ObjectData *data) : mData( data )
 {
     mId = s_mId++;
+    s_mObjectMap[mId] = this;
+
+    PropertyBindingList dataList = mData->GetProperties();
+    for( int ii =0; ii < dataList.size(); ++ii )
+    {
+        mPropertyBindings.push_back(dataList[ii]);
+    }
 }
 
 Object::~Object()
 {
     delete mData;
+    s_mObjectMap.erase(mId);
 }
 
-int Object::GetId()
+guid_t Object::GetId()
 {
     return mId;
 }
@@ -49,86 +63,44 @@ ObjectData* Object::GetData()
     return mData;
 }
 
-static inline std::string fileToString( const char* filename )
+bool Object::LoadFromFile( const std::string& filename )
 {
-    std::string ret;
-    std::ifstream infile( filename );
-    while( infile.is_open() && !infile.eof() )
+    if( mData )
     {
-        std::string line;
-        std::getline(infile, line);
-        ret += line + "\n";
+        std::ifstream infile ( filename.c_str() );
+        infile >> mName; 
+        mData->ClearData();
+        return mData->LoadFromFile(infile);
     }
-    infile.close();
-    return ret;
+
+    return false;
 }
 
-void Object::LoadFromFile( wxString filename )
+bool Object::WriteToFile( const std::string& filename )
 {
-    //using namespace rapidxml;
-    rapidxml::xml_document<> doc;
-    doc.parse<0>((char*)filename.c_str().AsChar());
-
-    rapidxml::xml_node<> *pObjectNode = doc.first_node("object");
-    if( pObjectNode )
+    if( mData )
     {
-        //for( xml_node<char> *pModelNode = pObjectNode->first_node("model"); pModelNode != NULL; pModelNode = pModelNode->next_sibling("object") )
-        rapidxml::xml_node<> *pModelNode = pObjectNode->first_node("model");
-        if( pModelNode )
-        {
-            std::ifstream input(pModelNode->first_attribute("file")->value());
-            //((const char*)pModelNode->first_attribute("file"));
-            //oglplus::OpenResourceFile(input, "models", pModelNode->first_attribute("file")->value(), ".obj");
-            mData->shape = new oglplus::shapes::ShapeWrapper (
-                oglplus::List("Position")("Normal")("Material").Get(),
-                oglplus::shapes::ObjMesh(
-                input,
-                oglplus::shapes::ObjMesh::LoadingOptions(false).Normals().Materials()
-                )
-            );
-        }
-
-        rapidxml::xml_node<> *pTextureNode = pObjectNode->first_node("texture");
-        if( pTextureNode )
-        {
-            std::string textureFilename = pTextureNode->first_attribute("file")->value();
-            auto bound_tex = Bind(mData->tex, oglplus::TextureTarget::_2D);
-            bound_tex.Image2D(oglplus::images::LoadTexture(textureFilename.c_str()));
-            bound_tex.MinFilter(oglplus::TextureMinFilter::Linear);
-            bound_tex.MagFilter(oglplus::TextureMagFilter::Linear);
-            bound_tex.Anisotropy(2.0f);
-            bound_tex.WrapS(oglplus::TextureWrap::Repeat);
-            bound_tex.WrapT(oglplus::TextureWrap::Repeat);
-        }
-
-        rapidxml::xml_node<> *pVShaderNode = pObjectNode->first_node("vshader");
-        if( pVShaderNode )
-        {
-            std::string shaderFilename = pVShaderNode->first_attribute("file")->value(); 
-            mData->vertexShader.Source(fileToString(shaderFilename.c_str()));
-            mData->vertexShader.Compile();
-        }
-
-        rapidxml::xml_node<> *pFShaderNode = pObjectNode->first_node("fshader");
-        if( pFShaderNode )
-        {
-            std::string shaderFilename = pFShaderNode->first_attribute("file")->value(); 
-            mData->fragmentShader.Source(fileToString(shaderFilename.c_str()));
-            mData->fragmentShader.Compile();
-        }
-
-        mData->program.AttachShader(mData->fragmentShader);
-        mData->program.AttachShader(mData->vertexShader);
-        
-        mData->modelMatrix      = new oglplus::LazyUniform<oglplus::Mat4f> (mData->program, "ModelMatrix");
-        mData->cameraMatrix     = new oglplus::LazyUniform<oglplus::Mat4f> (mData->program, "CameraMatrix");
-        mData->projectionMatrix = new oglplus::LazyUniform<oglplus::Mat4f> (mData->program, "ProjectionMatrix");
-       
-        mData->program.Link();
-
-        mData->vao = mData->shape->VAOForProgram(mData->program);
-
-        mData->shape->UseInProgram(mData->program);
-        mData->program.Use();
+        std::ofstream outFile( filename.c_str() );
+        outFile << mName;
+        bool ret = mData->WriteToFile(outFile);
+        outFile.close();
+        return ret;
     }
+
+    return false;
+}
+
+void Object::SetName( const std::string& name )
+{
+    mName = name;
+}
+
+const std::string& Object::GetName() const
+{
+    return mName;
+}
+
+PropertyBindingList Object::GetProperties()
+{
+    return mPropertyBindings;
 }

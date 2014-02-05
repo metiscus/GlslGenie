@@ -16,18 +16,13 @@
 */
 #pragma once
 
-#include <fstream>
+#include "Object.h"
 
-#include "ObjectPropertyBinding.h"
+class TextureData;
 
-class ObjectData
+class Texture : public Object
 {
 public:
-    ObjectData() { }
-    virtual ~ObjectData() { }
-
-    virtual void ClearData() = 0;
-    virtual bool LoadFromFile( std::ifstream& filename ) = 0;
-    virtual bool WriteToFile( std::ofstream& filename ) = 0;
-    virtual PropertyBindingList GetProperties() { return PropertyBindingList(); }
+    Texture();
+    virtual TextureData* GetData();
 };
