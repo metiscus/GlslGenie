@@ -25,6 +25,7 @@ class ObjectData;
 
 typedef int guid_t;
 typedef std::vector<guid_t> guidlist_t;
+typedef std::vector<Object*> objectlist_t;
 typedef std::map<guid_t, Object*> objectmap_t;
 
 #include "ObjectPropertyBinding.h"
@@ -33,6 +34,7 @@ class Object
 {
 public:
     static Object* LookupObject( guid_t id );
+    static objectlist_t GetObjectLists();
     Object( ObjectData *data );
     virtual ~Object();
     virtual bool LoadFromFile( const std::string& filename );

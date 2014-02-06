@@ -17,6 +17,7 @@
 #include "ggFrame.h"
 #include "ggGlobals.h"
 #include "ggProperties.h"
+#include "ggObjectEditor.h"
 #include "../lib/All.h"
 #include "../lib/ObjectData.h"
 
@@ -180,12 +181,15 @@ void ggFrame::OnCommand(wxCommandEvent& evnt)
             Texture *pTexture = new Texture();
             pTexture->GetId();
 
-            wxPGProperty *textureProp = mPropGrid->Append( new wxPropertyCategory("Texture"));
+            /*wxPGProperty *textureProp = mPropGrid->Append( new wxPropertyCategory("Texture"));
             PropertyBindingList properties = pTexture->GetProperties();
             for( int ii=0; ii<properties.size(); ++ii )
             {
                 mPropGrid->AppendIn( textureProp, new wxStringProperty(properties[ii]->GetName(), wxPG_LABEL, properties[ii]->GetValue()));
-            }
+            }*/
+
+            ggObjectEditor *editor = new ggObjectEditor(mConfigFile);
+            editor->Show();
         }
     }
 }

@@ -23,9 +23,13 @@
 
 #include "ObjectPropertyBinding.h"
 
+/* Static Members */
+//////////////////////////////////////////////
 guid_t Object::s_mId = 0;
 objectmap_t Object::s_mObjectMap;
 
+/* Static Functions */
+//////////////////////////////////////////////
 Object* Object::LookupObject( guid_t guid )
 {
     objectmap_t::const_iterator itr = s_mObjectMap.find(guid);
@@ -35,6 +39,19 @@ Object* Object::LookupObject( guid_t guid )
         return nullptr;
 }
 
+objectlist_t Object::GetObjectLists()
+{
+    objectlist_t ret;
+    objectmap_t::const_iterator beg = s_mObjectMap.begin();
+    for( ; beg!=s_mObjectMap.end(); ++beg )
+    {
+        ret.push_back(beg->second);
+    }
+    return ret;
+}
+
+/* Member Functions */
+//////////////////////////////////////////////
 Object::Object(ObjectData *data) : mData( data )
 {
     mId = s_mId++;

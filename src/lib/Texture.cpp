@@ -18,6 +18,8 @@
 
 #include "GenericData.h"
 
+#include <sstream>
+
 #include "Object.h"
 #include "ObjectData.h"
 #include "ObjectPropertyBinding.h"
@@ -74,7 +76,10 @@ private:
 Texture::Texture()
     : Object( new TextureData() )
 {
+    std::stringstream ss;
+    ss<<"Texture("<<GetId()<<")";
 
+    SetName(ss.str());
 }
 
  TextureData* Texture::GetData()
