@@ -36,9 +36,8 @@ public:
     ggObjectEditor( wxSharedPtr<wxFileConfig>& configFile );
     virtual ~ggObjectEditor();
 
-    virtual void OnIdle(wxIdleEvent& evnt);
-    virtual void OnResize(wxSizeEvent& evnt);
     virtual void OnCommand(wxCommandEvent& evnt);
+    virtual void OnListBoxClick(wxCommandEvent& evnt);
     virtual void OnClose(wxCloseEvent& evnt);
     virtual void OnPropChange(wxPropertyGridEvent& evnt);
 

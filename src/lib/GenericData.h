@@ -24,7 +24,7 @@ public:
     enum Type { INVALID, INT, FLOAT, VEC2, VEC3, VEC4 };
     
     GenericData();
-    GenericData( Type type );
+    explicit GenericData( GenericData::Type type );
 
     Type GetType() const;
     int  GetNumComponents() const;

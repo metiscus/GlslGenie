@@ -31,6 +31,7 @@ class TextureData : public ObjectData
 public:
     TextureData() 
         : mFilenameBinding( "Filename", ObjectPropertyBinding::STRING )
+        , mTextureUnit(GenericData::INT)
         , mTextureUnitBinding( "Texture Unit", ObjectPropertyBinding::INT )
     {
         mFilenameBinding.Bind( &mFilename );
