@@ -23,11 +23,17 @@ class ObjectPropertyBinding;
 
 typedef std::vector<ObjectPropertyBinding*> PropertyBindingList;
 
+class ObjectPropertyCallbackInterface
+{
+public:
+    virtual void DataChanged( ObjectPropertyBinding *ptr ) = 0;
+};
+
 class ObjectPropertyBinding
 {
 public:
     enum BindingType { STRING, INT, FLOAT, VEC2, VEC3, VEC4 }; // these should match GenericData.h with the exception of INVALID == STRING
-    ObjectPropertyBinding( const std::string& name, BindingType type );
+    ObjectPropertyBinding( const std::string& name, BindingType type, ObjectPropertyCallbackInterface *callback = nullptr );
     std::string GetName();
     BindingType GetType();
     void SetValue( const std::string& value );
@@ -40,4 +46,5 @@ private:
     std::string mName;
     std::string *mStringData;
     GenericData *mData;
+    ObjectPropertyCallbackInterface *mCallback;
 };

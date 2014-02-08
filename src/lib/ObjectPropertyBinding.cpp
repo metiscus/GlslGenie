@@ -20,8 +20,12 @@
 
 #include "ObjectPropertyBinding.h"
 
-ObjectPropertyBinding::ObjectPropertyBinding( const std::string& name, BindingType type )
-    : mName( name ), mType( type ), mStringData( nullptr ), mData( nullptr )
+ObjectPropertyBinding::ObjectPropertyBinding( const std::string& name, BindingType type, ObjectPropertyCallbackInterface *callback )
+    : mName( name )
+    , mType( type )
+    , mStringData( nullptr )
+    , mData( nullptr )
+    , mCallback( callback )
 {
 
 }
@@ -114,6 +118,11 @@ void ObjectPropertyBinding::SetValue( const std::string& value )
             mData->SetData(x, y, z, w);
         }
         break;
+    }
+
+    if( mCallback )
+    {
+        mCallback->DataChanged(this);
     }
 }
 

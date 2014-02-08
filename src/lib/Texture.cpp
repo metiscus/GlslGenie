@@ -23,16 +23,19 @@
 #include "Object.h"
 #include "ObjectData.h"
 #include "ObjectPropertyBinding.h"
+#include "GenericData.h"
 
 #include "Texture.h"
 
-class TextureData : public ObjectData
+class TextureData 
+    : public ObjectData
+    , public ObjectPropertyCallbackInterface
 {
 public:
     TextureData() 
-        : mFilenameBinding( "Filename", ObjectPropertyBinding::STRING )
+        : mFilenameBinding( "Filename", ObjectPropertyBinding::STRING, this )
         , mTextureUnit(GenericData::INT)
-        , mTextureUnitBinding( "Texture Unit", ObjectPropertyBinding::INT )
+        , mTextureUnitBinding( "Texture Unit", ObjectPropertyBinding::INT, this )
     {
         mFilenameBinding.Bind( &mFilename );
         mTextureUnitBinding.Bind( &mTextureUnit );
@@ -64,6 +67,14 @@ public:
         ret.push_back(&mFilenameBinding);
         ret.push_back(&mTextureUnitBinding);
         return ret;
+    }
+
+    virtual void DataChanged( ObjectPropertyBinding *ptr )
+    {
+        if( ptr == &mFilenameBinding )
+        {
+
+        }
     }
 
 private:

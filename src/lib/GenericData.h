@@ -18,6 +18,8 @@
 
 #include <fstream>
 
+class GenericData;
+
 class GenericData
 {
 public:

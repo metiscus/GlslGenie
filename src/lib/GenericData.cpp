@@ -18,7 +18,7 @@
 #include "GenericData.h"
 #include <cassert>
 
-GenericData::GenericData() : mType( INVALID )
+GenericData::GenericData( ) : mType( INVALID )
 {
     mData[0] = mData[1] = mData[2] = mData[3] = 0.0f;
 }
