@@ -52,5 +52,6 @@ private:
     wxSharedPtr<wxFileConfig> mConfigFile;
     wxPropertyGrid *mPropGrid;
     wxListBox *mObjectList;
+    wxStatusBar *mStatusBar;
     ggFrame *mParent;
 };

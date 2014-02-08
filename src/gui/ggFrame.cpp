@@ -224,6 +224,8 @@ void ggFrame::ToggleObjectEditor()
 void ggFrame::OnClose(wxCloseEvent& evnt)
 {
     UpdateConfig();
+    mEditor->Close(true);
+    mObjectEditor->Close(true);
     Destroy();
 }
 

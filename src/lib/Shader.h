@@ -16,12 +16,13 @@
 */
 #pragma once
 
-#include <wx/wx.h>
-
 #include "Object.h"
+
+class ShaderData;
 
 class Shader : public Object
 {
 public:
-
+    Shader();
+    virtual ShaderData* GetData();
 };

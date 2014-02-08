@@ -28,27 +28,25 @@
 #include "GenericData.h"
 
 #include <oglplus/all.hpp>
-#include <oglplus/images/load.hpp>
-#include <oglplus/bound/texture.hpp>
 
+#include "Shader.h"
 
-#include "Texture.h"
-
-class TextureData 
+class ShaderData 
     : public ObjectData
     , public ObjectPropertyCallbackInterface
 {
 public:
-    TextureData() 
+    ShaderData() 
         : mFilenameBinding( "Filename", ObjectPropertyBinding::STRING, this )
-        , mTextureUnit(GenericData::INT)
-        , mTextureUnitBinding( "Texture Unit", ObjectPropertyBinding::INT, this )
+        , mShaderType(GenericData::INT)
+        , mShaderTypeBinding( "Type(0:frag, 1:vert)", ObjectPropertyBinding::INT, this )
+        , mShader( nullptr )
     {
         mFilenameBinding.Bind( &mFilename );
-        mTextureUnitBinding.Bind( &mTextureUnit );
+        mShaderTypeBinding.Bind( &mShaderType );
     }
 
-    virtual ~TextureData()
+    virtual ~ShaderData()
     {
         ;
     }
@@ -72,25 +70,32 @@ public:
     {
         PropertyBindingList ret;
         ret.push_back(&mFilenameBinding);
-        ret.push_back(&mTextureUnitBinding);
+        ret.push_back(&mShaderTypeBinding);
         return ret;
     }
 
     virtual void DataChanged( ObjectPropertyBinding *ptr )
     {
-        using namespace oglplus;
         if( ptr == &mFilenameBinding )
         {
-            try {
-                auto bound_tex = Bind(mTexture, oglplus::Texture::Target::_2D);
-                bound_tex.Image2D(images::LoadTexture(ptr->GetValue()));
-                bound_tex.GenerateMipmap();
-                bound_tex.MinFilter(TextureMinFilter::LinearMipmapLinear);
-                bound_tex.MagFilter(TextureMagFilter::Linear);
-                bound_tex.WrapS(TextureWrap::Repeat);
-                bound_tex.WrapT(TextureWrap::Repeat);            
+
+        }
+        else if (ptr == &mShaderTypeBinding)
+        {
+            if( mShader )
+                delete mShader;
+            
+            if( mShaderTypeBinding.GetValue() == "0" )
+            {
+                mShader = new oglplus::FragmentShader();
+                //mShader->Source()
             }
-            catch(...)
+            else if ( mShaderTypeBinding.GetValue() == "1" )
+            {
+                mShader = new oglplus::VertexShader();
+            }
+
+            if( mShader )
             {
 
             }
@@ -101,22 +106,22 @@ private:
     std::string mFilename;
     ObjectPropertyBinding mFilenameBinding;
 
-    GenericData mTextureUnit;
-    ObjectPropertyBinding mTextureUnitBinding;
+    GenericData mShaderType;
+    ObjectPropertyBinding mShaderTypeBinding;
 
-    oglplus::Texture mTexture;
+    oglplus::Shader *mShader;
 };
 
-Texture::Texture()
-    : Object( new TextureData() )
+Shader::Shader()
+    : Object( new ShaderData() )
 {
     std::stringstream ss;
-    ss<<"Texture("<<GetId()<<")";
+    ss<<"Shader("<<GetId()<<")";
 
     SetName(ss.str());
 }
 
- TextureData* Texture::GetData()
- {
-     return (TextureData*)Object::GetData();
- }
+ShaderData* Shader::GetData()
+{
+    return (ShaderData*)Object::GetData();
+}

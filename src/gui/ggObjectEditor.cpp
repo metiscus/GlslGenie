@@ -34,6 +34,7 @@ ggObjectEditor::ggObjectEditor( ggFrame* parent, wxSharedPtr<wxFileConfig>& conf
     : wxFrame( nullptr, -1, wxT("Object Editor"), wxPoint(-1, -1), wxSize(500, 400))
     , mObjectList( nullptr )
     , mParent( parent )
+    , mStatusBar( nullptr )
 {
     wxBoxSizer *topSizer = new wxBoxSizer(wxHORIZONTAL);
     mObjectList = new wxListBox(this, wxID_ANY, wxPoint(-1, -1), wxSize(200, 400));
@@ -46,6 +47,8 @@ ggObjectEditor::ggObjectEditor( ggFrame* parent, wxSharedPtr<wxFileConfig>& conf
     Connect( wxEVT_CLOSE_WINDOW, wxCloseEventHandler(ggObjectEditor::OnClose));
     Connect(wxEVT_COMMAND_LISTBOX_SELECTED, wxCommandEventHandler(ggObjectEditor::OnListBoxClick));
     Connect( wxEVT_PG_CHANGED, wxPropertyGridEventHandler(ggObjectEditor::OnPropChange) );
+
+    mStatusBar = new wxStatusBar(this);
 
     BuildMenu();
 }
