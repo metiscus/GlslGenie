@@ -21,10 +21,12 @@
 #include <wx/fileconf.h>
 #include <wx/stc/stc.h>
 
+class ggFrame;
+
 class ggEditor : public wxFrame
 {
 public:
-    ggEditor( wxSharedPtr<wxFileConfig>& configFile );
+    ggEditor( ggFrame *parent, wxSharedPtr<wxFileConfig>& configFile );
     virtual ~ggEditor();
 
     virtual void OnCommand(wxCommandEvent& evnt);
@@ -34,4 +36,5 @@ private:
     bool mIsNew;
     wxString mFilename;
     wxStyledTextCtrl *mTextControl;
+    ggFrame *mParent;
 };

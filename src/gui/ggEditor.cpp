@@ -17,15 +17,17 @@
 #include <wx/filedlg.h>
 
 #include "ggEditor.h"
+#include "ggFrame.h"
 #include "ggGlobals.h"
 
 static const wxString g_editor_title = "GLSL Editor: ";
 
-ggEditor::ggEditor( wxSharedPtr<wxFileConfig>& configFile )
+ggEditor::ggEditor(  ggFrame *parent, wxSharedPtr<wxFileConfig>& configFile )
     : wxFrame( nullptr, -1, g_program_name, wxPoint(-1, -1), wxSize(500, 400))
     , mTextControl( nullptr )
     , mIsNew( true )
     , mFilename( "" )
+    , mParent( parent )
 {          
     SetTitle(g_editor_title);
 
@@ -49,6 +51,9 @@ ggEditor::ggEditor( wxSharedPtr<wxFileConfig>& configFile )
         wxCommandEventHandler(ggEditor::OnCommand));
     Connect(wxID_EXIT, wxEVT_COMMAND_MENU_SELECTED,
         wxCommandEventHandler(ggEditor::OnCommand));
+    Connect( wxEVT_CLOSE_WINDOW, wxCloseEventHandler(ggEditor::OnClose));
+
+    Hide();
 }
 
 ggEditor::~ggEditor()
@@ -98,7 +103,7 @@ void ggEditor::OnCommand(wxCommandEvent& evnt)
     }
     else if( evnt.GetId() == wxID_EXIT )
     {
-        Close(false);
+        mParent->ToggleEditor();
     }
 
     SetTitle(g_editor_title+ mFilename);
@@ -106,5 +111,6 @@ void ggEditor::OnCommand(wxCommandEvent& evnt)
 
 void ggEditor::OnClose(wxCloseEvent& evnt)
 {
-
+    evnt.Veto();
+    mParent->ToggleEditor();
 }

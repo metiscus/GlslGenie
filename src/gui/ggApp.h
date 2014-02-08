@@ -20,7 +20,6 @@
 #include <wx/fileconf.h>
 #include <wx/sharedptr.h>
 #include "ggFrame.h"
-#include "ggEditor.h"
 
 class ggApp : public wxApp
 {
@@ -33,6 +32,5 @@ public:
 
 private:
     ggFrame *mFrame;
-    ggEditor *mEditor;
     wxSharedPtr<wxFileConfig> mConfigFile;
 };

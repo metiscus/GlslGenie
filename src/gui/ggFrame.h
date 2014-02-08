@@ -30,6 +30,9 @@
 
 class Object;
 
+class ggObjectEditor;
+class ggEditor;
+
 class ggFrame : public wxFrame
 {
 public:
@@ -43,6 +46,9 @@ public:
     virtual void OnClose(wxCloseEvent& evnt);
     virtual void OnPropChange(wxPropertyGridEvent& evnt);
 
+    void ToggleEditor();
+    void ToggleObjectEditor();
+
 private:
     wxGLCanvas *mOglCanvas;
     wxGLContext *mOglContext;
@@ -55,4 +61,7 @@ private:
     void BuildMenu();
     void UpdateConfig();
     void BuildPropertyGrid();
+
+    ggEditor *mEditor;
+    ggObjectEditor *mObjectEditor;
 };

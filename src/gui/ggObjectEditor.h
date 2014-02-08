@@ -29,20 +29,24 @@
 #include <wx/propgrid/propgrid.h>
 
 class Object;
+class ggFrame;
 
 class ggObjectEditor : public wxFrame
 {
 public:
-    ggObjectEditor( wxSharedPtr<wxFileConfig>& configFile );
+    ggObjectEditor( ggFrame* parent, wxSharedPtr<wxFileConfig>& configFile );
     virtual ~ggObjectEditor();
 
     virtual void OnCommand(wxCommandEvent& evnt);
     virtual void OnListBoxClick(wxCommandEvent& evnt);
     virtual void OnClose(wxCloseEvent& evnt);
     virtual void OnPropChange(wxPropertyGridEvent& evnt);
+    void UpdateObjects();
+    void BuildMenu();
 
 private:
     wxSharedPtr<wxFileConfig> mConfigFile;
     wxPropertyGrid *mPropGrid;
     wxListBox *mObjectList;
+    ggFrame *mParent;
 };

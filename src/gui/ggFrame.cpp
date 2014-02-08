@@ -18,24 +18,12 @@
 #include "ggGlobals.h"
 #include "ggProperties.h"
 #include "ggObjectEditor.h"
-#include "../lib/All.h"
-#include "../lib/ObjectData.h"
+#include "ggEditor.h"
 
-enum { ggID_CREATE_TEXTURE = 1 };
-
-static inline std::string fileToString( const char* filename )
-{
-    std::string ret;
-    std::ifstream infile( filename );
-    while( infile.is_open() && !infile.eof() )
-    {
-        std::string line;
-        std::getline(infile, line);
-        ret += line + "\n";
-    }
-    infile.close();
-    return ret;
-}
+enum { 
+    ggID_TOGGLE_EDITOR = 1,
+    ggID_TOGGLE_OBJ_EDITOR = 2
+};
 
 ggFrame::ggFrame( wxSharedPtr<wxFileConfig>& configFile )
     : wxFrame( nullptr, -1, g_program_name, wxPoint(-1, -1), wxSize(500, 400))
@@ -43,6 +31,8 @@ ggFrame::ggFrame( wxSharedPtr<wxFileConfig>& configFile )
     , mOglContext( nullptr )
     , mConfigFile( configFile )
     , mPropGrid( nullptr )
+    , mEditor( nullptr )
+    , mObjectEditor( nullptr )
 {          
     static int glFlags[] = {
         WX_GL_RGBA,
@@ -75,6 +65,9 @@ ggFrame::ggFrame( wxSharedPtr<wxFileConfig>& configFile )
     Connect( wxEVT_IDLE, wxIdleEventHandler(ggFrame::OnIdle) );
     Connect( wxEVT_CLOSE_WINDOW, wxCloseEventHandler(ggFrame::OnClose));
 
+    mEditor = new ggEditor(this, mConfigFile);
+    mObjectEditor = new ggObjectEditor(this, mConfigFile);
+
     BuildMenu();
 
     Show();
@@ -86,9 +79,6 @@ ggFrame::ggFrame( wxSharedPtr<wxFileConfig>& configFile )
     windowSize.SetBottom( mConfigFile->ReadLong(g_window_y_str, -1) );
     
     SetSize(windowSize);
-
-    //mObject = new Object();
-    //mObject->LoadFromFile(fileToString("model.xml").c_str());
 }
 
 ggFrame::~ggFrame()
@@ -173,24 +163,59 @@ void ggFrame::OnCommand(wxCommandEvent& evnt)
     {
     case wxID_EXIT:
         {
-            close(false);
+            this->Close(false);
+            break;
         }
-        break;
-    case ggID_CREATE_TEXTURE:
+    case ggID_TOGGLE_EDITOR:
         {
-            Texture *pTexture = new Texture();
-            pTexture->GetId();
-
-            /*wxPGProperty *textureProp = mPropGrid->Append( new wxPropertyCategory("Texture"));
-            PropertyBindingList properties = pTexture->GetProperties();
-            for( int ii=0; ii<properties.size(); ++ii )
-            {
-                mPropGrid->AppendIn( textureProp, new wxStringProperty(properties[ii]->GetName(), wxPG_LABEL, properties[ii]->GetValue()));
-            }*/
-
-            ggObjectEditor *editor = new ggObjectEditor(mConfigFile);
-            editor->Show();
+            ToggleEditor();
+            break;
         }
+    case ggID_TOGGLE_OBJ_EDITOR:
+        {
+            ToggleObjectEditor();           
+            break;
+        }
+    }
+}
+
+void ggFrame::ToggleEditor()
+{
+    wxMenuBar * menu = GetMenuBar();
+    wxMenuItem *menuItem = nullptr;
+    if( menu )
+    {
+        menuItem = menu->FindItem(ggID_TOGGLE_EDITOR);
+    }
+
+    if(mEditor->IsVisible())
+    {
+        mEditor->Hide();
+        menuItem->Check(false);
+    } else
+    {
+        mEditor->Show();
+        menuItem->Check(true);
+    }
+}
+
+void ggFrame::ToggleObjectEditor()
+{
+    wxMenuBar * menu = GetMenuBar();
+    wxMenuItem *menuItem = nullptr;
+    if( menu )
+    {
+        menuItem = menu->FindItem(ggID_TOGGLE_OBJ_EDITOR);
+    }
+
+    if(mObjectEditor->IsVisible())
+    {
+        mObjectEditor->Hide();
+        menuItem->Check(false);
+    } else
+    {
+        mObjectEditor->Show();
+        menuItem->Check(true);
     }
 }
 
@@ -212,14 +237,20 @@ void ggFrame::BuildMenu()
     wxMenu* fileMenu = new wxMenu();
     fileMenu->Append(wxID_EXIT, wxT("&Quit"));
     menuBar->Append(fileMenu, wxT("&File"));
-    fileMenu->Append(ggID_CREATE_TEXTURE, wxT("New Texture"));
     SetMenuBar(menuBar);
 
     Connect(wxID_EXIT, wxEVT_COMMAND_MENU_SELECTED,
         wxCommandEventHandler(ggFrame::OnCommand));
 
-    Connect(ggID_CREATE_TEXTURE, wxEVT_COMMAND_MENU_SELECTED,
+    wxMenu *windowMenu = new wxMenu();
+    
+    windowMenu->AppendCheckItem(ggID_TOGGLE_EDITOR, wxT("Editor"));
+    windowMenu->AppendCheckItem(ggID_TOGGLE_OBJ_EDITOR, wxT("Object Editor"));
+    Connect(ggID_TOGGLE_EDITOR, wxEVT_COMMAND_MENU_SELECTED,
         wxCommandEventHandler(ggFrame::OnCommand));
+    Connect(ggID_TOGGLE_OBJ_EDITOR, wxEVT_COMMAND_MENU_SELECTED,
+        wxCommandEventHandler(ggFrame::OnCommand));
+    menuBar->Append(windowMenu, wxT("&Windows"));
 }
 
 void ggFrame::UpdateConfig()
