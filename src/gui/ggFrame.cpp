@@ -163,6 +163,8 @@ void ggFrame::OnCommand(wxCommandEvent& evnt)
     {
     case wxID_EXIT:
         {
+            mEditor->Close(true);
+            mObjectEditor->Close(true);
             this->Close(false);
             break;
         }

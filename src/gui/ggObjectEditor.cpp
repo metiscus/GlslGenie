@@ -99,7 +99,14 @@ void ggObjectEditor::OnCommand(wxCommandEvent& evnt)
 
 void ggObjectEditor::OnClose(wxCloseEvent& evnt)
 {
-    evnt.Veto();
+    if(evnt.CanVeto())
+    {
+        evnt.Veto();
+    }
+    else
+    {
+        Destroy();
+    }
     mParent->ToggleObjectEditor();
 }
 

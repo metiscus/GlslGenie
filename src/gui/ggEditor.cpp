@@ -111,6 +111,13 @@ void ggEditor::OnCommand(wxCommandEvent& evnt)
 
 void ggEditor::OnClose(wxCloseEvent& evnt)
 {
-    evnt.Veto();
+    if(evnt.CanVeto())
+    {
+        evnt.Veto();
+    }
+    else
+    {
+        Destroy();
+    }
     mParent->ToggleEditor();
 }
