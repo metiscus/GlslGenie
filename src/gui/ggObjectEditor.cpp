@@ -42,15 +42,6 @@ ggObjectEditor::ggObjectEditor( ggFrame* parent, wxSharedPtr<wxFileConfig>& conf
     topSizer->Add(mPropGrid, 1, wxEXPAND);
     SetSizer(topSizer);
 
-    objectlist_t objectList = Object::GetObjectLists();
-
-    for( int ii=0; ii<objectList.size(); ++ii )
-    {
-        Object *pObject = objectList[ii];
-
-        wxString itemLabel(pObject->GetName());
-        mObjectList->Insert( itemLabel, 0, pObject );
-    }
 
     Connect( wxEVT_CLOSE_WINDOW, wxCloseEventHandler(ggObjectEditor::OnClose));
     Connect(wxEVT_COMMAND_LISTBOX_SELECTED, wxCommandEventHandler(ggObjectEditor::OnListBoxClick));
@@ -83,6 +74,7 @@ void ggObjectEditor::OnCommand(wxCommandEvent& evnt)
     case ggID_CREATE_TEXTURE:
         {
             Texture *texture = new Texture();
+            AddObjectToList(texture);
             break;
         }
     case ggID_CREATE_SHADER:
@@ -151,15 +143,7 @@ void ggObjectEditor::UpdateObjects()
     Object* pObject = (Object*)mObjectList->GetClientData(selectedIndex);
     if ( pObject )
     {
-        mPropGrid->Clear();
-        wxString name = wxString(pObject->GetName());
-        wxPGProperty *objProp = mPropGrid->Append( new wxPropertyCategory(name) );
-        PropertyBindingList properties = pObject->GetProperties();
-        for( int ii=0; ii<properties.size(); ++ii )
-        {
-            wxStringProperty *pProperty = new wxStringProperty(properties[ii]->GetName(), wxPG_LABEL, wxString(properties[ii]->GetValue()));
-            mPropGrid->AppendIn( objProp, pProperty);
-        }
+        MakeObjectCurrent(pObject);
     }
 }
 
@@ -169,7 +153,7 @@ void ggObjectEditor::BuildMenu()
     wxMenu* fileMenu = new wxMenu();
     fileMenu->Append(wxID_EXIT, wxT("&Quit"));
     Connect(wxID_EXIT, wxEVT_COMMAND_MENU_SELECTED,
-        wxCommandEventHandler(ggFrame::OnCommand));
+        wxCommandEventHandler(ggObjectEditor::OnCommand));
     menuBar->Append(fileMenu, wxT("&File"));
     
     wxMenu* objMenu = new wxMenu();
@@ -177,16 +161,39 @@ void ggObjectEditor::BuildMenu()
     objMenu->Append(ggID_CREATE_SHADER, wxT("New Shader"));
     objMenu->Append(ggID_CREATE_PROGRAM, wxT("New Program"));
     objMenu->Append(ggID_CREATE_UNIFORM, wxT("New Uniform"));
-    Connect(wxID_EXIT, ggID_CREATE_TEXTURE,
-        wxCommandEventHandler(ggFrame::OnCommand));
-    Connect(wxID_EXIT, ggID_CREATE_SHADER,
-        wxCommandEventHandler(ggFrame::OnCommand));
-    Connect(wxID_EXIT, ggID_CREATE_PROGRAM,
-        wxCommandEventHandler(ggFrame::OnCommand));
-    Connect(wxID_EXIT, ggID_CREATE_UNIFORM,
-        wxCommandEventHandler(ggFrame::OnCommand));
+    Connect(ggID_CREATE_TEXTURE, wxEVT_COMMAND_MENU_SELECTED,
+        wxCommandEventHandler(ggObjectEditor::OnCommand));
+    Connect(ggID_CREATE_SHADER, wxEVT_COMMAND_MENU_SELECTED,
+        wxCommandEventHandler(ggObjectEditor::OnCommand));
+    Connect(ggID_CREATE_PROGRAM, wxEVT_COMMAND_MENU_SELECTED,
+        wxCommandEventHandler(ggObjectEditor::OnCommand));
+    Connect(ggID_CREATE_UNIFORM, wxEVT_COMMAND_MENU_SELECTED,
+        wxCommandEventHandler(ggObjectEditor::OnCommand));
     menuBar->Append(objMenu, wxT("Objects"));    
 
 
     SetMenuBar(menuBar);
+}
+
+void ggObjectEditor::AddObjectToList(Object* object)
+{          
+    if( object )
+    {   
+        wxString itemLabel(object->GetName());        
+        mObjectList->SetSelection( mObjectList->Insert( itemLabel, mObjectList->GetCount(), object ) );        
+        MakeObjectCurrent(object);
+    }
+}
+
+void ggObjectEditor::MakeObjectCurrent(Object* object)
+{
+    wxString name = wxString(object->GetName());
+    mPropGrid->Clear();
+    PropertyBindingList properties = object->GetProperties();
+    wxPGProperty *objProp = mPropGrid->Append( new wxPropertyCategory(name) );
+    for( int ii=0; ii<properties.size(); ++ii )
+    {
+        wxStringProperty *pProperty = new wxStringProperty(properties[ii]->GetName(), wxPG_LABEL, wxString(properties[ii]->GetValue()));
+        mPropGrid->AppendIn( objProp, pProperty);
+    }
 }

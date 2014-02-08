@@ -44,6 +44,10 @@ public:
     void UpdateObjects();
     void BuildMenu();
 
+protected:
+    void AddObjectToList(Object* object);
+    void MakeObjectCurrent(Object* object);
+
 private:
     wxSharedPtr<wxFileConfig> mConfigFile;
     wxPropertyGrid *mPropGrid;
