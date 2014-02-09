@@ -76,17 +76,18 @@ void ggObjectEditor::OnCommand(wxCommandEvent& evnt)
         }
     case ggID_CREATE_TEXTURE:
         {
-            Texture *texture = new Texture();
-            AddObjectToList(texture);
+            AddObjectToList(new Texture());
             break;
         }
     case ggID_CREATE_SHADER:
         {
+            AddObjectToList(new Shader());
             UpdateObjects();           
             break;
         }
     case ggID_CREATE_PROGRAM:
         {
+            AddObjectToList(new Program());
             UpdateObjects();           
             break;
         }

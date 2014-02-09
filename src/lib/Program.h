@@ -20,13 +20,18 @@
 
 #include "Object.h"
 
+class ProgramData;
+
 class Program : public Object
 {
 public:
     Program( );
-    virtual ~Program();
+    ProgramData* Program::GetData();
+    /*
     const guidlist_t& GetShaders() const;
     const guidlist_t& GetUniforms() const;
-    void AddShader(guidlist_t shader);
-    void AddUniform(guidlist_t uniform);
+    void AddShader(guid_t shader);
+    void AddUniform(guid_t uniform);
+    void AddVertexData(guid_t verts);
+    */
 };

@@ -18,8 +18,6 @@
 
 #include <GL/glew.h>
 
-#include "GenericData.h"
-
 #include <sstream>
 
 #include "Object.h"
@@ -30,87 +28,8 @@
 #include <oglplus/all.hpp>
 
 #include "Shader.h"
-
-class ShaderData 
-    : public ObjectData
-    , public ObjectPropertyCallbackInterface
-{
-public:
-    ShaderData() 
-        : mFilenameBinding( "Filename", ObjectPropertyBinding::STRING, this )
-        , mShaderType(GenericData::INT)
-        , mShaderTypeBinding( "Type(0:frag, 1:vert)", ObjectPropertyBinding::INT, this )
-        , mShader( nullptr )
-    {
-        mFilenameBinding.Bind( &mFilename );
-        mShaderTypeBinding.Bind( &mShaderType );
-    }
-
-    virtual ~ShaderData()
-    {
-        ;
-    }
-
-    virtual void ClearData()
-    {
-
-    }
-
-    virtual bool LoadFromFile( std::ifstream& filename )
-    {
-        return false;
-    }
-
-    virtual bool WriteToFile( std::ofstream& filename )
-    {
-        return false;
-    }
-
-    virtual PropertyBindingList GetProperties()
-    {
-        PropertyBindingList ret;
-        ret.push_back(&mFilenameBinding);
-        ret.push_back(&mShaderTypeBinding);
-        return ret;
-    }
-
-    virtual void DataChanged( ObjectPropertyBinding *ptr )
-    {
-        if( ptr == &mFilenameBinding )
-        {
-
-        }
-        else if (ptr == &mShaderTypeBinding)
-        {
-            if( mShader )
-                delete mShader;
-            
-            if( mShaderTypeBinding.GetValue() == "0" )
-            {
-                mShader = new oglplus::FragmentShader();
-                //mShader->Source()
-            }
-            else if ( mShaderTypeBinding.GetValue() == "1" )
-            {
-                mShader = new oglplus::VertexShader();
-            }
-
-            if( mShader )
-            {
-
-            }
-        }
-    }
-
-private:
-    std::string mFilename;
-    ObjectPropertyBinding mFilenameBinding;
-
-    GenericData mShaderType;
-    ObjectPropertyBinding mShaderTypeBinding;
-
-    oglplus::Shader *mShader;
-};
+#define SHADER_CPP_PRIVATE
+#include "ShaderData.h"
 
 Shader::Shader()
     : Object( new ShaderData() )

@@ -18,8 +18,6 @@
 
 #include <GL/glew.h>
 
-#include "GenericData.h"
-
 #include <sstream>
 
 #include "Object.h"
@@ -92,7 +90,7 @@ public:
             }
             catch(...)
             {
-
+                assert(false);
             }
         }
     }

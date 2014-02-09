@@ -24,6 +24,7 @@ class Object;
 class ObjectData;
 
 typedef int guid_t;
+
 typedef std::vector<guid_t> guidlist_t;
 typedef std::vector<Object*> objectlist_t;
 typedef std::map<guid_t, Object*> objectmap_t;
@@ -33,6 +34,7 @@ typedef std::map<guid_t, Object*> objectmap_t;
 class Object
 {
 public:
+    static const guid_t InvalidGuid = -1;
     static Object* LookupObject( guid_t id );
     static objectlist_t GetObjectLists();
     Object( ObjectData *data );

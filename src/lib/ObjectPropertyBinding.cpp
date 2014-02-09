@@ -16,6 +16,7 @@
 */
 #pragma once
 
+#include <cassert>
 #include <sstream>
 
 #include "ObjectPropertyBinding.h"
@@ -63,8 +64,11 @@ std::string ObjectPropertyBinding::GetValue()
 
 void ObjectPropertyBinding::SetValue( const std::string& value )
 {
+    assert( mStringData != nullptr || mData != nullptr);
     if( mStringData == nullptr && mData == nullptr )
+    {
         return;
+    }
 
     switch(mType)
     {
