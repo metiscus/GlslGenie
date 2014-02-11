@@ -20,7 +20,10 @@
 
 #include "Object.h"
 
+class VertexDataData;
+
 class VertexData : public Object
 {
 public:
+    virtual VertexDataData* GetData();
 };

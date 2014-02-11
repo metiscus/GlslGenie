@@ -26,7 +26,7 @@ class Program : public Object
 {
 public:
     Program( );
-    ProgramData* Program::GetData();
+    virtual ProgramData* GetData();
     /*
     const guidlist_t& GetShaders() const;
     const guidlist_t& GetUniforms() const;
