@@ -1,0 +1,3 @@
+Ideas
+- Use a diagram like interface to hook up shaders and textures instead of the object editor
+- Add enums support to the property editor stuff
